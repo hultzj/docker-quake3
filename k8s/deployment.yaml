@@ -2,22 +2,22 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   labels:
-    app: quake3
-  name: quake3
+    app: docker-quake3
+  name: docker-quake3
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: quake3
+      app: docker-quake3
   template:
     metadata:
       labels:
-        app: quake3
+        app: docker-quake3
     spec:
       containers:
         - image: image-registry.openshift-image-registry.svc:5000/pipelines-easymode/docker-quake3
           imagePullPolicy: Always
-          name: quake3
+          name: docker-quake3
           ports:
             - containerPort: 9000
               protocol: TCP

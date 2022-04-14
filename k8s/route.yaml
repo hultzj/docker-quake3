@@ -2,13 +2,13 @@ apiVersion: route.openshift.io/v1
 kind: Route
 metadata:
   labels:
-    app: quake3
-  name: quake3
+    app: docker-quake3
+  name: docker-quake3
 spec:
   port:
     targetPort: 9000
   to:
     kind: Service
-    name: quake3
+    name: docker-quake3
     weight: 100
   wildcardPolicy: None
