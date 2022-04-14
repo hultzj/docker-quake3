@@ -1,14 +1,21 @@
 apiVersion: v1
 kind: Service
 metadata:
-  labels:
-    app: docker-quake3
   name: docker-quake3
 spec:
-  type: ClusterIP
-  ports:
-    - protocol: TCP
-      port: 9000
-      targetPort: 9000
+  type: NodePort
   selector:
-    app: docker-quake3
+    run: docker-quake3
+  ports:
+    - port: 8080
+      targetPort: 8080
+      nodePort: 30001
+      name: client
+    - port: 27960
+      targetPort: 27960
+      nodePort: 30003
+      name: server
+    - port: 9090
+      targetPort: 9090
+      nodePort: 30002
+      name: content

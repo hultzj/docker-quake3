@@ -1,23 +1,55 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  labels:
-    app: docker-quake3
   name: docker-quake3
 spec:
-  replicas: 1
   selector:
     matchLabels:
-      app: docker-quake3
+      run: docker-quake3
+  replicas: 1
   template:
     metadata:
       labels:
-        app: docker-quake3
+        run: docker-quake3
+      annotations:
+        prometheus.io/scrape: 'true'
+        prometheus.io/port: '8080'
     spec:
       containers:
-        - image: image-registry.openshift-image-registry.svc:5000/pipelines-easymode/docker-quake3
-          imagePullPolicy: Always
-          name: docker-quake3
-          ports:
-            - containerPort: 9000
-              protocol: TCP
+      - command:
+        - q3
+        - server
+        - --config=/config/config.yaml
+        - --content-server=http://127.0.0.1:9090
+        - --agree-eula
+        image: image-registry.openshift-image-registry.svc:5000/pipelines-easymode/docker-quake3
+        name: server
+        ports:
+        - containerPort: 8080
+        readinessProbe:
+          tcpSocket:
+            port: 8080
+          initialDelaySeconds: 15
+          periodSeconds: 5
+        volumeMounts:
+        - name: quake3-server-config
+          mountPath: /config
+        - name: quake3-content
+          mountPath: /assets
+      - command:
+        - q3
+        - content
+        - --seed-content-url=http://content.quakejs.com
+        image: image-registry.openshift-image-registry.svc:5000/pipelines-easymode/docker-quake3
+        name: content-server
+        ports:
+        - containerPort: 9090
+        volumeMounts:
+        - name: quake3-content
+          mountPath: /assets
+      volumes:
+        - name: quake3-server-config
+          configMap:
+            name: quake3-server-config
+        - name: quake3-content
+          emptyDir: {}
